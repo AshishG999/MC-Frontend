@@ -1,14 +1,15 @@
+version: "3.8"
+
 services:
   frontend:
     build:
       context: ./
     ports:
       - "4000:4000"
-    network:
+    networks:        # ✅ use "networks"
       - app_network
 
-network:
-  app_network: 
+networks:           # ✅ should be plural
+  app_network:
     driver: bridge
-    external: true
-
+    external: true   # only if you've already created this network
