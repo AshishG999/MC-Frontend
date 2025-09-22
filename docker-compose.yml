@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build:
+      context: ./
+    ports:
+      - "4000:4000"
+    network:
+      - app_network
+
+network:
+  app_network: 
+    driver: bridge
+    external: true
+

@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { fetchWrapper } from '../utils/fetchWrapper';
+import { findProperty } from '../api/project';
 
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [urbanProjects, setUrbanProjects] = useState([])
   const [formData, setFormData] = useState({
     domain: '',
     projectName: '',
     city: '',
     status: 'inactive',
   });
-
   // Load projects from backend
   const loadProjects = async () => {
     setLoading(true);
@@ -26,6 +27,16 @@ function Projects() {
   useEffect(() => {
     loadProjects();
   }, []);
+  let time
+  useEffect(() => {
+    if (formData?.projectName) {
+      clearTimeout(time)
+      time = setTimeout(() => {
+        let response = findProperty({ searchValue: formData?.projectName })
+        setUrbanProjects(response.property || [])
+      }, 300)
+    }
+  }, [formData])
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -75,15 +86,22 @@ function Projects() {
             />
           </div>
           <div className="col-md-3 mb-2">
-            <input
-              type="text"
-              name="projectName"
-              className="form-control"
-              placeholder="Project Name"
-              value={formData.projectName}
-              onChange={handleChange}
-              required
-            />
+            <div className="position-relative">
+
+              <input
+                type="text"
+                name="projectName"
+                className="form-control"
+                placeholder="Project Name"
+                value={formData.projectName}
+                onChange={handleChange}
+                required
+              />
+              {urbanProjects && urbanProjects.length > 0 &&
+                <div className='position-absolute'>
+                  {urbanProjects.map((e, i) => <div>{e}</div>)}
+                </div>}
+            </div>
           </div>
           <div className="col-md-2 mb-2">
             <input
