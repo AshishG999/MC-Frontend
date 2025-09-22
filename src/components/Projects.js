@@ -44,10 +44,10 @@ function Projects() {
     }
   };
 
-  const handleDelete = async (domain) => {
-    if (!window.confirm(`Delete project ${domain}?`)) return;
+  const handleDelete = async (project) => {
+    if (!window.confirm(`Delete project ${project.domain}?`)) return;
     try {
-      await fetchWrapper.delete(`/projects/${domain}`);
+      await fetchWrapper.delete(`/projects/${project._id}`);
       alert('Project deleted');
       loadProjects();
     } catch (err) {
@@ -141,7 +141,7 @@ function Projects() {
                     <td>{project.status}</td>
                     <td>{new Date(project.createdAt).toLocaleString()}</td>
                     <td>
-                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(project.domain)}>Delete</button>
+                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(project)}>Delete</button>
                     </td>
                   </tr>
                 ))
