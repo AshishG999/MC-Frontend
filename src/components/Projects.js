@@ -7,7 +7,6 @@ function Projects() {
   const [formData, setFormData] = useState({
     domain: '',
     projectName: '',
-    githubRepo: '',
     city: '',
     status: 'inactive',
   });
@@ -37,7 +36,7 @@ function Projects() {
     try {
       await fetchWrapper.post('/projects', formData);
       alert('Project saved successfully');
-      setFormData({ domain: '', projectName: '', githubRepo: '', city: '', status: 'inactive' });
+      setFormData({ domain: '', projectName: '', city: '', status: 'inactive' });
       loadProjects();
     } catch (err) {
       console.error(err);
@@ -84,16 +83,6 @@ function Projects() {
               value={formData.projectName}
               onChange={handleChange}
               required
-            />
-          </div>
-          <div className="col-md-2 mb-2">
-            <input
-              type="text"
-              name="githubRepo"
-              className="form-control"
-              placeholder="GitHub Repo"
-              value={formData.githubRepo}
-              onChange={handleChange}
             />
           </div>
           <div className="col-md-2 mb-2">
