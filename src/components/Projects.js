@@ -31,16 +31,26 @@ function Projects() {
 
   const timeRef = React.useRef();
   useEffect(() => {
-    if (formData?.projectName) {
-      clearTimeout(timeRef.current);
-      timeRef.current = setTimeout(() => {
-        let response = findProperty({ searchValue: formData?.projectName });
-        setUrbanProjects(response.property || []);
-      }, 300);
+    if (!formData?.projectName) {
+      setUrbanProjects([]);
+      return;
     }
-    // Cleanup on unmount or when formData changes
+
+    clearTimeout(timeRef.current);
+
+    timeRef.current = setTimeout(async () => {
+      try {
+        const response = await findProperty({ searchValue: formData.projectName });
+        setUrbanProjects(response.property || []);
+      } catch (err) {
+        console.error('Error fetching urban projects', err);
+        setUrbanProjects([]);
+      }
+    }, 300);
+
     return () => clearTimeout(timeRef.current);
-  }, [formData]);
+  }, [formData.projectName]);
+
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -103,14 +113,18 @@ function Projects() {
               />
               {urbanProjects && urbanProjects.length > 0 &&
                 <div className='position-absolute'>
-                  {urbanProjects.map((e, i) => <div onClick={() => {
-                    setFormData({
-                      ...formData,
-                      projectId: e._id,
-                      projectName: e.name
-                    });
-                    setUrbanProjects([]);
-                  }}>{e.name}</div>)}
+                  {urbanProjects.map((e) => (
+                    <div key={e._id} onClick={() => {
+                      setFormData({
+                        ...formData,
+                        projectId: e._id,
+                        projectName: e.name
+                      });
+                      setUrbanProjects([]);
+                    }}>
+                      {e.name}
+                    </div>
+                  ))}
                 </div>}
             </div>
           </div>
@@ -163,7 +177,7 @@ function Projects() {
               ) : (
                 projects.map((project) => (
                   <tr key={project._id}>
-                    <td><a href={project.domain}>{project.domain}</a></td>
+                    <td><a href={`http://${project.domain}`}>{project.domain}</a></td>
                     <td>{project.projectName}</td>
                     <td>{project.githubRepo || '-'}</td>
                     <td>{project.city || '-'}</td>
