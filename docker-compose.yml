@@ -6,6 +6,8 @@ services:
       context: ./
     ports:
       - "4000:4000"
+    environment:
+      - REACT_APP_API_BASE=${REACT_APP_API_BASE}
     networks:        # ✅ use "networks"
       - app_network
 
