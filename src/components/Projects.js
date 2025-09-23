@@ -41,7 +41,9 @@ function Projects() {
     timeRef.current = setTimeout(async () => {
       try {
         const response = await findProperty({ searchValue: formData.projectName });
-        setUrbanProjects(response.property || []);
+        console.log(response);
+        
+        setUrbanProjects(response.propertys || []);
       } catch (err) {
         console.error('Error fetching urban projects', err);
         setUrbanProjects([]);
@@ -112,9 +114,10 @@ function Projects() {
                 required
               />
               {urbanProjects && urbanProjects.length > 0 &&
-                <div className='position-absolute'>
+                <div className='position-absolute d-flex flex-column overflow-y-auto bg-white z-3 w-100 border border-1 rounded-2 shadow' style={{maxHeight: 200}}>
                   {urbanProjects.map((e) => (
-                    <div key={e._id} onClick={() => {
+                    <div className='p-2 border-bottom border-light-subtle onHover'
+                    key={e._id} onClick={() => {
                       setFormData({
                         ...formData,
                         projectId: e._id,

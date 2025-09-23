@@ -1,18 +1,15 @@
 import axios from 'axios';
 
 // Function to call /property/find
-export const findProperty = async ({ searchValue, productId, area }) => {
+export const findProperty = async ({ searchValue}) => {
   try {
-    const response = await axios.post('https://safebridge.urbanpillar.com/api/property/find', {
+    // const response = await axios.post('http://localhost:8000/api/property', {
+    const response = await axios.post('https://safebridge.urbanpillar.com/api/property', {
       searchValue,
-      productId,
-      area
+      listingType: 'residential'
     });
 
-    // Access the data
-    const { property, totalproperty } = response.data;
-
-    return { property, totalproperty };
+    return response.data;
   } catch (error) {
     throw error;
   }
