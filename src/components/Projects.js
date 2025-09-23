@@ -9,6 +9,7 @@ function Projects() {
   const [formData, setFormData] = useState({
     domain: '',
     projectName: '',
+    projectId: '',
     city: '',
     status: 'inactive',
   });
@@ -27,16 +28,19 @@ function Projects() {
   useEffect(() => {
     loadProjects();
   }, []);
-  let time
+
+  const timeRef = React.useRef();
   useEffect(() => {
     if (formData?.projectName) {
-      clearTimeout(time)
-      time = setTimeout(() => {
-        let response = findProperty({ searchValue: formData?.projectName })
-        setUrbanProjects(response.property || [])
-      }, 300)
+      clearTimeout(timeRef.current);
+      timeRef.current = setTimeout(() => {
+        let response = findProperty({ searchValue: formData?.projectName });
+        setUrbanProjects(response.property || []);
+      }, 300);
     }
-  }, [formData])
+    // Cleanup on unmount or when formData changes
+    return () => clearTimeout(timeRef.current);
+  }, [formData]);
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -99,7 +103,14 @@ function Projects() {
               />
               {urbanProjects && urbanProjects.length > 0 &&
                 <div className='position-absolute'>
-                  {urbanProjects.map((e, i) => <div>{e}</div>)}
+                  {urbanProjects.map((e, i) => <div onClick={() => {
+                    setFormData({
+                      ...formData,
+                      projectId: e._id,
+                      projectName: e.name
+                    });
+                    setUrbanProjects([]);
+                  }}>{e.name}</div>)}
                 </div>}
             </div>
           </div>
@@ -152,7 +163,7 @@ function Projects() {
               ) : (
                 projects.map((project) => (
                   <tr key={project._id}>
-                    <td>{project.domain}</td>
+                    <td><a href={project.domain}>{project.domain}</a></td>
                     <td>{project.projectName}</td>
                     <td>{project.githubRepo || '-'}</td>
                     <td>{project.city || '-'}</td>
