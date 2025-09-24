@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const WS_URL = "wss://portal.urbanpillar.info/ws"; // replace with your WS server
+const WS_URL = "wss://safebridge.urbanpillar.info/ws"; // replace with your WS server
 
 export default function Dashboard() {
   const [leads, setLeads] = useState([]);
