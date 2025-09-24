@@ -9,41 +9,34 @@ export default function Dashboard() {
   const [deployments, setDeployments] = useState([]);
 
   useEffect(() => {
-    const ws = new WebSocket(WS_URL);
+    let ws;
 
-    ws.onopen = () => console.log("Connected to Kafka WebSocket");
+    function connect() {
+      ws = new WebSocket(WS_URL);
 
-    ws.onmessage = (msg) => {
-      try {
-        const payload = JSON.parse(msg.data);
-        const { topic, data } = payload;
-
+      ws.onopen = () => console.log("Connected to WS");
+      ws.onmessage = (msg) => {
+        const { topic, data } = JSON.parse(msg.data);
         switch (topic) {
-          case "leads":
-            setLeads((prev) => [data, ...prev].slice(0, 50));
-            break;
-          case "visits":
-            setVisits((prev) => [data, ...prev].slice(0, 50));
-            break;
-          case "suspicious-events":
-            setSuspicious((prev) => [data, ...prev].slice(0, 50));
-            break;
-          case "deployments":
-            setDeployments((prev) => [data, ...prev].slice(0, 50));
-            break;
-          default:
-            break;
+          case "leads": setLeads(prev => [data, ...prev].slice(0, 50)); break;
+          case "visits": setVisits(prev => [data, ...prev].slice(0, 50)); break;
+          case "suspicious-events": setSuspicious(prev => [data, ...prev].slice(0, 50)); break;
+          case "deployments": setDeployments(prev => [data, ...prev].slice(0, 50)); break;
         }
-      } catch (err) {
-        console.error("WS message parse error", err);
-      }
-    };
+      };
 
-    ws.onclose = () => console.log("WebSocket disconnected");
-    ws.onerror = (err) => console.error("WebSocket error", err);
+      ws.onclose = () => {
+        console.log("WS disconnected, retry in 5s");
+        setTimeout(connect, 5000);
+      };
+      ws.onerror = (err) => console.error("WS error", err);
+    }
+
+    connect();
 
     return () => ws.close();
   }, []);
+
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
