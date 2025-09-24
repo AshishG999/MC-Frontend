@@ -211,10 +211,10 @@ function Projects() {
               onChange={handleChange}
             >
               <option value="">Default Template</option>
-              <option value="https://github.com/Urbanpiller/sample-project.git">Sample Project</option>
+              <option value={'sample-project'}>Sample Project</option>
               {projects.map(p => (
                 p.githubRepo && p._id !== formData.projectId && (
-                  <option key={p._id} value={p.githubRepo}>{p.projectName}</option>
+                  <option key={p._id} value={p.domain}>{p.projectName}</option>
                 )
               ))}
             </select>
