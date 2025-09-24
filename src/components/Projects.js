@@ -1,19 +1,23 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { findProperty } from '../api/project';
 
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [urbanProjects, setUrbanProjects] = useState([])
+  const [urbanProjects, setUrbanProjects] = useState([]);
   const [formData, setFormData] = useState({
     domain: '',
     projectName: '',
     projectId: '',
     city: '',
     status: 'inactive',
+    templateRepo: '', // template repo URL
   });
-  // Load projects from backend
+  const [templatePreview, setTemplatePreview] = useState(null);
+
+  const timeRef = useRef();
+
   const loadProjects = async () => {
     setLoading(true);
     try {
@@ -29,9 +33,9 @@ function Projects() {
     loadProjects();
   }, []);
 
-  const timeRef = React.useRef();
+  // Search for existing projects
   useEffect(() => {
-    if (!formData?.projectName) {
+    if (!formData.projectName) {
       setUrbanProjects([]);
       return;
     }
@@ -41,8 +45,6 @@ function Projects() {
     timeRef.current = setTimeout(async () => {
       try {
         const response = await findProperty({ searchValue: formData.projectName });
-        console.log(response);
-        
         setUrbanProjects(response.propertys || []);
       } catch (err) {
         console.error('Error fetching urban projects', err);
@@ -52,6 +54,40 @@ function Projects() {
 
     return () => clearTimeout(timeRef.current);
   }, [formData.projectName]);
+
+  // Preview template site when templateRepo changes
+
+
+  /**
+ * Sanitize domain to use as GitHub repo name
+ */
+  function sanitizeRepoName(domain) {
+    return domain.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  }
+  // Inside Projects component...
+  useEffect(() => {
+    if (!formData.templateRepo && !formData.domain) {
+      setTemplatePreview(null);
+      return;
+    }
+
+    let previewUrl = null;
+
+    // If the project already exists (domain provided), preview live site
+    if (formData.domain) {
+      previewUrl = `http://${sanitizeRepoName(formData.domain)}`;
+    }
+    // Otherwise, fallback to GitHub raw repo index.html
+    else if (formData.templateRepo.includes('github.com')) {
+      const repoUrl = formData.templateRepo
+        .replace('https://github.com/', '')
+        .replace('.git', '');
+      previewUrl = `https://raw.githubusercontent.com/${repoUrl}/main/index.html`;
+    }
+
+    setTemplatePreview(previewUrl);
+  }, [formData.templateRepo, formData.domain]);
+
 
 
   const handleChange = (e) => {
@@ -63,7 +99,14 @@ function Projects() {
     try {
       await fetchWrapper.post('/projects', formData);
       alert('Project saved successfully');
-      setFormData({ domain: '', projectName: '', city: '', status: 'inactive' });
+      setFormData({
+        domain: '',
+        projectName: '',
+        city: '',
+        status: 'inactive',
+        templateRepo: ''
+      });
+      setTemplatePreview(null);
       loadProjects();
     } catch (err) {
       console.error(err);
@@ -90,6 +133,7 @@ function Projects() {
       {/* Create / Add Project Form */}
       <form onSubmit={handleSave} className="mb-4">
         <div className="row">
+          {/* Domain */}
           <div className="col-md-3 mb-2">
             <input
               type="text"
@@ -101,23 +145,23 @@ function Projects() {
               required
             />
           </div>
-          <div className="col-md-3 mb-2">
-            <div className="position-relative">
 
-              <input
-                type="text"
-                name="projectName"
-                className="form-control"
-                placeholder="Project Name"
-                value={formData.projectName}
-                onChange={handleChange}
-                required
-              />
-              {urbanProjects && urbanProjects.length > 0 &&
-                <div className='position-absolute d-flex flex-column overflow-y-auto bg-white z-3 w-100 border border-1 rounded-2 shadow' style={{maxHeight: 200}}>
-                  {urbanProjects.map((e) => (
-                    <div className='p-2 border-bottom border-light-subtle onHover'
-                    key={e._id} onClick={() => {
+          {/* Project Name */}
+          <div className="col-md-3 mb-2 position-relative">
+            <input
+              type="text"
+              name="projectName"
+              className="form-control"
+              placeholder="Project Name"
+              value={formData.projectName}
+              onChange={handleChange}
+              required
+            />
+            {urbanProjects.length > 0 && (
+              <div className="position-absolute d-flex flex-column overflow-y-auto bg-white z-3 w-100 border border-1 rounded-2 shadow" style={{ maxHeight: 200 }}>
+                {urbanProjects.map((e) => (
+                  <div key={e._id} className="p-2 border-bottom border-light-subtle onHover"
+                    onClick={() => {
                       setFormData({
                         ...formData,
                         projectId: e._id,
@@ -125,12 +169,14 @@ function Projects() {
                       });
                       setUrbanProjects([]);
                     }}>
-                      {e.name}
-                    </div>
-                  ))}
-                </div>}
-            </div>
+                    {e.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* City */}
           <div className="col-md-2 mb-2">
             <input
               type="text"
@@ -141,6 +187,8 @@ function Projects() {
               onChange={handleChange}
             />
           </div>
+
+          {/* Status */}
           <div className="col-md-2 mb-2">
             <select
               name="status"
@@ -153,7 +201,38 @@ function Projects() {
               <option value="suspended">Suspended</option>
             </select>
           </div>
+
+          {/* Template selection */}
+          <div className="col-md-2 mb-2">
+            <select
+              name="templateRepo"
+              className="form-select"
+              value={formData.templateRepo}
+              onChange={handleChange}
+            >
+              <option value="">Default Template</option>
+              <option value="https://github.com/Urbanpiller/sample-project.git">Sample Project</option>
+              {projects.map(p => (
+                p.githubRepo && p._id !== formData.projectId && (
+                  <option key={p._id} value={p.githubRepo}>{p.projectName}</option>
+                )
+              ))}
+            </select>
+          </div>
         </div>
+
+        {/* Template Preview */}
+        {templatePreview && (
+          <div className="mt-2 p-2 border border-light rounded-2 bg-light">
+            <strong>Template Preview:</strong>
+            <iframe
+              src={templatePreview}
+              title="Template Preview"
+              style={{ width: '100%', height: 400, border: '1px solid #ccc', marginTop: 8 }}
+            />
+          </div>
+        )}
+
         <button type="submit" className="btn btn-primary mt-2">Add Project</button>
       </form>
 
@@ -180,7 +259,7 @@ function Projects() {
               ) : (
                 projects.map((project) => (
                   <tr key={project._id}>
-                    <td><a href={`http://${project.domain}`}>{project.domain}</a></td>
+                    <td><a href={`http://${project.domain}`} target="_blank" rel="noreferrer">{project.domain}</a></td>
                     <td>{project.projectName}</td>
                     <td>{project.githubRepo || '-'}</td>
                     <td>{project.city || '-'}</td>
