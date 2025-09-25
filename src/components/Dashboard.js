@@ -22,7 +22,7 @@ export default function Dashboard() {
           case "visits": setVisits(prev => [data, ...prev].slice(0, 50)); break;
           case "suspicious-events": setSuspicious(prev => [data, ...prev].slice(0, 50)); break;
           case "deployments": setDeployments(prev => [data, ...prev].slice(0, 50)); break;
-          default: 
+          default:
             console.warn(`Unknown topic received: ${topic}`);
             break;
         }
@@ -74,50 +74,52 @@ export default function Dashboard() {
       {/* Visits */}
       <section>
         <h2>Recent Visits</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>IP</th>
-              <th>Browser</th>
-              <th>OS</th>
-              <th>Device</th>
-              <th>Project</th>
-              <th>Location</th>
-              <th>Path</th>
-              <th>Method</th>
-              <th>Status</th>
-              <th>Referer</th>
-              <th>Suspicious</th>
-              <th>ASN Org</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Area</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visits.map((v, i) => (
-              <tr key={i}>
-                <td>{v.ip}</td>
-                <td>{v.browser}</td>
-                <td>{v.os}</td>
-                <td>{v.device}</td>
-                <td>{v.projectDomain}</td>
-                <td>{v.city}, {v.region}, {v.country}</td>
-                <td>{v.path}</td>
-                <td>{v.method}</td>
-                <td>{v.status}</td>
-                <td>{v.referer}</td>
-                <td>{v.suspicious ? 'Yes' : 'No'}</td>
-                <td>{v.asnOrg}</td>
-                <td>{v.latitude ?? '-'}</td>
-                <td>{v.longitude ?? '-'}</td>
-                <td>{v.area || '-'}</td>
-                <td>{new Date(v.timestamp).toLocaleString()}</td>
+        <div class="table-responsive">
+          <table class="table">
+            <thead class="table-dark">
+              <tr>
+                <th>IP</th>
+                <th>Browser</th>
+                <th>OS</th>
+                <th>Device</th>
+                <th>Project</th>
+                <th>Location</th>
+                <th>Path</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Referer</th>
+                <th>Suspicious</th>
+                <th>ASN Org</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Area</th>
+                <th>Timestamp</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {visits.map((v, i) => (
+                <tr key={i}>
+                  <td>{v.ip}</td>
+                  <td>{v.browser}</td>
+                  <td>{v.os}</td>
+                  <td>{v.device}</td>
+                  <td>{v.projectDomain}</td>
+                  <td>{v.city}, {v.region}, {v.country}</td>
+                  <td>{v.path}</td>
+                  <td>{v.method}</td>
+                  <td>{v.status}</td>
+                  <td>{v.referer}</td>
+                  <td>{v.suspicious ? 'Yes' : 'No'}</td>
+                  <td>{v.asnOrg}</td>
+                  <td>{v.latitude ?? '-'}</td>
+                  <td>{v.longitude ?? '-'}</td>
+                  <td>{v.area || '-'}</td>
+                  <td>{new Date(v.timestamp).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {/* Suspicious */}
