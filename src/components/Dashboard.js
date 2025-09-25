@@ -75,8 +75,8 @@ export default function Dashboard() {
       <section>
         <h2>Recent Visits</h2>
         <div class="table-responsive">
-          <table class="table">
-            <thead class="table-dark">
+          <table className="table">
+            <thead className="table-dark">
               <tr>
                 <th>IP</th>
                 <th>Browser</th>
@@ -87,6 +87,7 @@ export default function Dashboard() {
                 <th>Path</th>
                 <th>Method</th>
                 <th>Status</th>
+                <th>Partial</th> {/* New column */}
                 <th>Referer</th>
                 <th>Suspicious</th>
                 <th>ASN Org</th>
@@ -105,9 +106,10 @@ export default function Dashboard() {
                   <td>{v.device}</td>
                   <td>{v.projectDomain}</td>
                   <td>{v.city}, {v.region}, {v.country}</td>
-                  <td>{v.path}</td>
+                  <td>{v.path}</td> {/* Decoded path from backend */}
                   <td>{v.method}</td>
                   <td>{v.status}</td>
+                  <td>{v.partial ? 'Yes' : 'No'}</td> {/* Partial content indicator */}
                   <td>{v.referer}</td>
                   <td>{v.suspicious ? 'Yes' : 'No'}</td>
                   <td>{v.asnOrg}</td>
@@ -119,6 +121,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+
         </div>
       </section>
 
