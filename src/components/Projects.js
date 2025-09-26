@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { findProperty } from '../api/project';
+import DeploymentLogs from './DeploymentLogs';
 
 function Projects() {
   const [projects, setProjects] = useState([]);
@@ -275,6 +276,7 @@ function Projects() {
           </table>
         </div>
       )}
+      <DeploymentLogs domain={formData?.domain} />
     </div>
   );
 }
